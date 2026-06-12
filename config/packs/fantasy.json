@@ -1,0 +1,11 @@
+{
+  "name": "fantasy",
+  "description": "CC0 fantasy BGM pack for longer looping sessions. Replaces the idle/work/dungeon background tracks with calmer, longer OpenGameArt music while leaving starter SFX untouched.",
+  "license": "CC0-1.0",
+  "credits": "Village of Snow by Chris Murphy (OpenGameArt, public domain). SNES RPG Overworld by Pheontis (OpenGameArt, public domain as of Jan 2017). Great Labyrinth by Mintodog (OpenGameArt, CC0).",
+  "files": [
+    { "kind": "bgm", "name": "village", "url": "https://opengameart.org/sites/default/files/VillageOfSnow.ogg" },
+    { "kind": "bgm", "name": "quest",   "url": "https://opengameart.org/sites/default/files/SNES%20RPG%20overworld%20loop%20II.wav" },
+    { "kind": "bgm", "name": "dungeon", "url": "https://opengameart.org/sites/default/files/great_labyrinth_bpm160_0.ogg" }
+  ]
+}

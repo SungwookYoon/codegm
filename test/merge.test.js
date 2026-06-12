@@ -64,10 +64,11 @@ for (const arr of Object.values(merged.hooks)) {
 }
 ok('merge produced tagged entries', ours.length > 0);
 
-// 3. uninstall is clean inverse (modulo re-serialization)
+// 3. uninstall strips only our owned hooks.
 const cleaned = stripOwned(merged);
-ok('uninstall removes hooks key (since base had none)', !base.hooks ? !cleaned.hooks : true);
-ok('uninstall restores original object', deepEqual(base, cleaned));
+const baseStripped = stripOwned(base);
+ok('uninstall removes hooks key when only owned hooks were present', !baseStripped.hooks ? !cleaned.hooks : true);
+ok('uninstall restores original object with owned hooks stripped', deepEqual(baseStripped, cleaned));
 
 // 4. idempotent: merge twice == merge once
 const mergedTwice = mergeOwned(merged, { abs: false });

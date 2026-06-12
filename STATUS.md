@@ -4,14 +4,15 @@ _Last updated: 2026-06-13_
 
 This is a portable handoff snapshot so development can continue on another
 machine. The project is **functionally complete and fully tested** (all suites
-pass). What remains is polish, real-music packs, real-session validation, and
-npm publish.
+pass). What remains is real-session validation, release/publish execution, and
+optional pack polish.
 
 ## What this is
 
 Game-style (fantasy-RPG) background music + sound effects for **Claude Code**,
 driven by Claude Code hooks. A thin Node CLI (`cc-bgm`) controls a bundled
-PowerShell WPF audio daemon. Windows-first. Distributed via npm.
+PowerShell WPF audio daemon. Windows-first. Can be distributed via npm or a
+GitHub Release zip plus PowerShell installer.
 
 Concept (decided with user): warm **village** theme while idle → **quest**
 (adventure) music while Claude works → **questclear** chime on turn end.
@@ -53,6 +54,8 @@ package.json              os:win32, bin, files whitelist, npm scripts (test, gen
 .npmignore                excludes test/, *.log
 README.md                 user docs
 STATUS.md                 this file
+install.ps1               GitHub Release installer (copies app + PATH shim)
+uninstall.ps1             GitHub Release uninstaller (optional data purge)
 bin/cc-bgm.js             CLI entry
 src/cli.js                arg router
 src/commands/
@@ -90,26 +93,48 @@ test/                            test suites (see below)
 - Trigger map dispatch decision table. (test/dispatch.test.js)
 - `cc-bgm fetch starter` downloads 9 real CC0 files from GitHub and the daemon
   plays the real .ogg/.wav (verified live; user files override placeholders).
-- `npm test` → ALL SUITES PASSED.
+- Added `config/packs/fantasy.json`: a BGM-only OpenGameArt CC0 pack with longer
+  looping `village`, `quest`, and `dungeon` replacements. It intentionally
+  leaves SFX to `starter` (or the bundled defaults).
+- Real user-path validation completed for install/runtime plumbing:
+  `cc-bgm init` merged into the real `~/.claude/settings.json` without removing
+  existing user hooks; `fetch starter` + `fetch fantasy` both downloaded
+  successfully into `%LOCALAPPDATA%\cc-bgm\assets\`; real daemon runtime was
+  exercised with `village -> quest -> village`, `off`/`on`, and debug logs
+  confirmed debounce (`already active/incoming, no-op`) plus `questclear` on
+  `Stop`.
+- Test expectations were updated for the real-world case where the source
+  `settings.json` may already contain both user-authored hooks and existing
+  `cc-bgm` hooks. `merge.test.js`, `init-uninstall.test.js`, and the full
+  `npm test` suite all pass again.
+- Publish prep is mostly complete: `package.json` now includes author /
+  repository / homepage / bugs metadata, `LICENSE` was added as MIT, `npm pack`
+  was verified to include `daemon/`, `assets/`, `config/packs/`, and `LICENSE`
+  while excluding `test/`, and the package name `cc-bgm` was confirmed unused on
+  npm at check time.
+- GitHub Release distribution path now exists too: `install.ps1` installs the
+  app into `%LOCALAPPDATA%\Programs\cc-bgm\`, creates a `cc-bgm.cmd` shim, can
+  add it to user `PATH`, and was smoke-tested in a temp dir along with
+  `uninstall.ps1`. Full `npm test` still passes after these additions.
 
 Run the suite: `npm test` (from project root, on Windows).
 
 ## Status: TODO (agreed order — "순서대로 권장대로")
 
-1. **Add a `fantasy` pack with longer, properly-looping BGM.** Kenney jingles in
-   `starter` are short and loop a bit awkwardly. Find longer CC0 ambient/RTS
-   tracks (OpenGameArt CC0) with stable raw URLs and add
-   `config/packs/fantasy.json` (same schema as starter.json). BGM-only override
-   is fine; keep starter's SFX.
-2. **Real-session validation.** Run `cc-bgm init` against the real
-   `~/.claude/settings.json`, `cc-bgm fetch starter`, then use a live Claude Code
-   session and confirm village↔quest transitions, restrained SFX, debounce,
-   Stop→questclear. Then `cc-bgm off`/`on`, and `cc-bgm uninstall` to confirm
-   clean removal.
-3. **npm publish prep.** Fill package.json author/repository/homepage/version,
-   add LICENSE (MIT), `npm pack` and inspect the tarball contains daemon/,
-   assets/, config/packs/ and NOT test/. Decide package name availability
-   (`cc-bgm` on npm). Then `npm publish`.
+1. **Final human-in-the-loop session check.** One live Claude Code session still
+   needs an actual listen-through: start a fresh session, submit a prompt, let a
+   few tools run, and confirm the subjective feel of village↔quest transitions,
+   restrained SFX, and `Stop -> questclear` with the new `fantasy` BGM layered on
+   top of `starter`.
+2. **Real uninstall cleanup check.** After the live listen-through, run
+   `cc-bgm uninstall` against the real `~/.claude/settings.json` and confirm our
+   tagged hooks are removed while the pre-existing user hooks remain intact.
+3. **Release execution.** If the live session and uninstall checks feel good,
+   either publish the already-prepped package to npm (`cc-bgm`) or cut a GitHub
+   Release zip that includes `install.ps1` / `uninstall.ps1`. Re-check package
+   name availability immediately before npm publishing in case it changed.
+4. **Optional pack polish.** If the new `fantasy` balance feels off in live use,
+   swap in better-matched quest/credits tracks or add a `credits` BGM override.
 
 ## Portability notes for the new machine
 
@@ -117,8 +142,8 @@ Run the suite: `npm test` (from project root, on Windows).
 - No native npm deps; `npm install` then `npm test` should just work.
 - If asset placeholders are missing, regenerate: `npm run gen-assets`.
 - The real downloaded audio is NOT committed (re-fetch with `cc-bgm fetch`).
-- Recommend `git init` + first commit when set up on the new machine (this dir
-  is not yet a git repo).
+- This workspace is now in git; keep the first commit on the new machine small
+  and after verifying install/test pass there.
 
 ## Open design questions / deferrals
 

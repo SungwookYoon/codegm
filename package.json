@@ -2,10 +2,19 @@
   "name": "cc-bgm",
   "version": "0.1.0",
   "description": "Game-style background music & sound effects for Claude Code (Windows). StarCraft-vibes for your coding agent — town theme while idle, battle theme while working, victory chime when done.",
+  "author": "SungwookYoon",
   "bin": {
     "cc-bgm": "bin/cc-bgm.js"
   },
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SungwookYoon/codegm.git"
+  },
+  "homepage": "https://github.com/SungwookYoon/codegm#readme",
+  "bugs": {
+    "url": "https://github.com/SungwookYoon/codegm/issues"
+  },
   "engines": {
     "node": ">=18"
   },

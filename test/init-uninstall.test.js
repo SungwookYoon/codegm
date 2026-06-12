@@ -9,6 +9,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { execFileSync } = require('child_process');
+const { stripOwned } = require('../src/core/settings-merge');
 
 const pkg = path.resolve(__dirname, '..');
 const bin = path.join(pkg, 'bin', 'cc-bgm.js');
@@ -23,8 +24,10 @@ fs.copyFileSync(realSettings, fakeSettings);
 
 const read = () => JSON.parse(fs.readFileSync(fakeSettings, 'utf8'));
 const orig = read();
+const origStripped = stripOwned(orig);
 const origAllow = orig.permissions ? orig.permissions.allow.length : 0;
 const origNonHooks = JSON.stringify((() => { const o = { ...orig }; delete o.hooks; return o; })());
+const expectedFinalHooks = JSON.stringify(origStripped.hooks);
 
 const env = { ...process.env, USERPROFILE: fakeHome, HOME: fakeHome };
 const run = (args) => execFileSync(process.execPath, [bin, ...args], { env, encoding: 'utf8' });
@@ -49,9 +52,10 @@ console.log(run(['uninstall']));
 const final = read();
 ok('uninstall preserved permissions.allow count',
   final.permissions && final.permissions.allow.length === origAllow);
-ok('uninstall removed hooks', !final.hooks);
-ok('uninstall restored original byte-for-byte (modulo formatting)',
-  JSON.stringify(final) === JSON.stringify(orig));
+ok('uninstall removed only cc-bgm-owned hooks',
+  JSON.stringify(final.hooks) === expectedFinalHooks && !fs.readFileSync(fakeSettings, 'utf8').includes('__ccbgm'));
+ok('uninstall restored original object with owned hooks stripped',
+  JSON.stringify(final) === JSON.stringify(origStripped));
 
 const backups = fs.readdirSync(path.join(fakeHome, '.claude')).filter((f) => f.includes('ccbgm-backup'));
 ok('backups were created', backups.length >= 1);

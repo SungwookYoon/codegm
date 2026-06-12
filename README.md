@@ -43,6 +43,8 @@ Key design points:
 
 ## Install
 
+### Option A: npm
+
 ```sh
 npm install -g cc-bgm
 cc-bgm doctor     # verify the audio stack
@@ -50,6 +52,31 @@ cc-bgm init       # install the hooks into ~/.claude/settings.json
 ```
 
 Start a new Claude Code session and code as usual.
+
+### Option B: GitHub Release (no npm publish required)
+
+1. Download and extract the release zip.
+2. Open PowerShell in the extracted folder.
+3. Run:
+
+```powershell
+.\install.ps1
+cc-bgm doctor
+cc-bgm init --abs
+```
+
+`install.ps1` copies the package into `%LOCALAPPDATA%\Programs\cc-bgm\`, creates
+a `cc-bgm.cmd` shim, and adds that bin directory to your user `PATH`.
+`--abs` is recommended here so Claude hooks call the installed script by absolute
+path even if a future shell session does not pick up your `PATH` immediately.
+
+To remove the release-based install later:
+
+```powershell
+.\uninstall.ps1
+```
+
+Add `-PurgeData` if you also want to delete `%LOCALAPPDATA%\cc-bgm\`.
 
 ## Commands
 
@@ -92,15 +119,20 @@ Changes are validated and applied to the running daemon immediately. Options:
 
 ### Getting real music
 
-The bundled audio is placeholder tones. Pull a real CC0 pack from GitHub:
+The bundled audio is placeholder tones. Pull a real CC0 pack:
 
 ```sh
 cc-bgm fetch starter   # Kenney CC0 jingles (BGM) + interface sounds (SFX)
+cc-bgm fetch fantasy   # longer fantasy BGM only; keeps your current/default SFX
 cc-bgm play quest      # hear it
 ```
 
 Downloads land in `%LOCALAPPDATA%\cc-bgm\assets\` and override the placeholders.
 Or drop your own files there by name — see below.
+
+`starter` is the quick all-in-one pack. `fantasy` is a BGM-only override built
+from longer OpenGameArt CC0 tracks for `village`, `quest`, and `dungeon`, so you
+can layer it on top of `starter` if you want real music without changing SFX.
 
 ## Trigger map (default)
 
