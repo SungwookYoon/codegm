@@ -1,0 +1,16 @@
+{
+  "_comment": "Fantasy-RPG asset map. Logical name -> file (relative to an assets/ root) + optional gain (dB) and loop. User overrides at %LOCALAPPDATA%/cc-bgm/assets/manifest.json are merged on top. Missing names fall back to assets/<kind>/<name>.<ext> by convention.",
+  "bgm": {
+    "village": { "file": "bgm/village.wav", "gain": 0, "loop": true },
+    "quest":   { "file": "bgm/quest.wav",   "gain": 0, "loop": true },
+    "dungeon": { "file": "bgm/dungeon.wav", "gain": 0, "loop": true },
+    "credits": { "file": "bgm/credits.wav", "gain": 0, "loop": false }
+  },
+  "sfx": {
+    "questclear":   { "file": "sfx/questclear.wav",   "gain": 0 },
+    "error":        { "file": "sfx/error.wav",        "gain": -2 },
+    "save":         { "file": "sfx/save.wav",         "gain": -6 },
+    "summon":       { "file": "sfx/summon.wav",       "gain": 0 },
+    "fanfare_soft": { "file": "sfx/fanfare_soft.wav", "gain": -3 }
+  }
+}

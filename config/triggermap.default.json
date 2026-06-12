@@ -1,0 +1,39 @@
+{
+  "_comment": "Fantasy-RPG concept. BGM is always 'ensure <mode>' (idempotent — daemon no-ops if already in that mode, so music switches only on idle<->work transitions, never restarts per tool call). SFX are RESTRAINED: only meaningful moments (quest clear, error, permission, save). Logical BGM modes: 'village' (idle/waiting) and 'quest' (Claude working). Override at %LOCALAPPDATA%/cc-bgm/triggermap.json.",
+
+  "SessionStart": { "bgm": "village", "sfx": "fanfare_soft" },
+  "UserPromptSubmit": { "bgm": "quest" },
+
+  "PreToolUse": {
+    "_byTool": {
+      "Read": {},
+      "Bash": { "bgm": "quest" },
+      "Edit": { "bgm": "quest" },
+      "Write": { "bgm": "quest" },
+      "_default": { "bgm": "quest" }
+    }
+  },
+
+  "PostToolUse": {
+    "_byTool": {
+      "Edit": { "sfx": "save" },
+      "Write": { "sfx": "save" },
+      "_default": {}
+    }
+  },
+
+  "PostToolUseFailure": { "sfx": "error" },
+
+  "SubagentStart": { "bgm": "quest" },
+  "SubagentStop": {},
+
+  "Notification": {
+    "_byType": {
+      "permission_prompt": { "sfx": "summon" },
+      "idle_prompt": { "bgm": "village" }
+    }
+  },
+
+  "Stop": { "bgm": "village", "sfx": "questclear" },
+  "SessionEnd": { "bgm": "__stop" }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "starter",
+  "description": "CC0 starter pack — Kenney music jingles (BGM) + Kenney interface sounds (SFX). All Creative Commons Zero (public domain), no attribution required.",
+  "license": "CC0-1.0",
+  "credits": "Kenney (kenney.nl). Music jingles via github.com/Boyquotes/kenney-music-jingles-for-godot; interface sounds via github.com/Calinou/kenney-interface-sounds.",
+  "files": [
+    { "kind": "bgm", "name": "village",      "url": "https://raw.githubusercontent.com/Boyquotes/kenney-music-jingles-for-godot/main/addons/kenney%20music%20jingles/Pizzicato%20jingles/jingles_pizzi_0.ogg" },
+    { "kind": "bgm", "name": "quest",        "url": "https://raw.githubusercontent.com/Boyquotes/kenney-music-jingles-for-godot/main/addons/kenney%20music%20jingles/Sax%20jingles/jingles_sax_0.ogg" },
+    { "kind": "bgm", "name": "dungeon",      "url": "https://raw.githubusercontent.com/Boyquotes/kenney-music-jingles-for-godot/main/addons/kenney%20music%20jingles/Steel%20jingles/jingles_steel_0.ogg" },
+    { "kind": "bgm", "name": "credits",      "url": "https://raw.githubusercontent.com/Boyquotes/kenney-music-jingles-for-godot/main/addons/kenney%20music%20jingles/Pizzicato%20jingles/jingles_pizzi_1.ogg" },
+
+    { "kind": "sfx", "name": "questclear",   "url": "https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/confirmation_001.wav" },
+    { "kind": "sfx", "name": "error",        "url": "https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/error_002.wav" },
+    { "kind": "sfx", "name": "save",         "url": "https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/click_001.wav" },
+    { "kind": "sfx", "name": "summon",       "url": "https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/bong_001.wav" },
+    { "kind": "sfx", "name": "fanfare_soft", "url": "https://raw.githubusercontent.com/Calinou/kenney-interface-sounds/master/addons/kenney_interface_sounds/confirmation_002.wav" }
+  ]
+}

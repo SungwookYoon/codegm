@@ -1,0 +1,39 @@
+{
+  "name": "cc-bgm",
+  "version": "0.1.0",
+  "description": "Game-style background music & sound effects for Claude Code (Windows). StarCraft-vibes for your coding agent — town theme while idle, battle theme while working, victory chime when done.",
+  "bin": {
+    "cc-bgm": "bin/cc-bgm.js"
+  },
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "os": [
+    "win32"
+  ],
+  "files": [
+    "bin/",
+    "src/",
+    "daemon/cc-bgm-daemon.ps1",
+    "assets/",
+    "config/triggermap.default.json",
+    "config/packs/"
+  ],
+  "scripts": {
+    "postinstall": "node bin/cc-bgm.js _postinstall",
+    "test": "node test/run-all.js",
+    "gen-assets": "powershell -NoProfile -ExecutionPolicy Bypass -File test/gen-placeholder-assets.ps1"
+  },
+  "keywords": [
+    "claude-code",
+    "claude",
+    "hooks",
+    "bgm",
+    "sfx",
+    "music",
+    "audio",
+    "windows"
+  ],
+  "license": "MIT"
+}

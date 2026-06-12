@@ -1,0 +1,7 @@
+node_modules/
+*.log
+*.part
+*.tmp
+.spawning
+# placeholder audio IS committed (keeps the repo self-contained);
+# user-downloaded packs live in %LOCALAPPDATA%, not here.
