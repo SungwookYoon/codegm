@@ -5,8 +5,9 @@ your coding agent is doing. Fantasy-RPG vibe: a calm village theme while you're
 idle, adventure music when Claude starts working, a quest-clear chime when it
 finishes. Windows-first.
 
-> Think of a coding session as a quest. You give Claude an order → the adventure
-> music kicks in → tools run → "quest complete!" when the turn ends.
+> Think of a coding session as a quest. You give Claude an order → a retro submit
+> chirp plays → light 8-bit progress ticks run while Claude works → "quest
+> complete!" lands when the turn ends.
 
 ## How it works
 
@@ -26,8 +27,10 @@ Key design points:
 - **BGM only switches on state transitions.** Hooks fire on every tool call, but
   the dispatcher sends idempotent `ensure <mode>` commands and the daemon no-ops
   if it's already in that mode — so music never restarts mid-loop.
-- **SFX are restrained** — only meaningful moments (quest clear, error, file
-  save, permission request), with a per-sound cooldown to avoid bursts.
+- **SFX come first.** A short submit chirp fires when you send a prompt, a light
+  retro processing pulse repeats while Claude is actively working, and only a
+  few extra events (quest clear, error, file save, permission request) add
+  accent sounds. Cooldowns keep it from turning into a typewriter storm.
 - **Non-blocking.** Every hook is `async:true`; Claude never waits on audio. If
   cc-bgm is missing or slow, your session is unaffected.
 - **Safe install.** `cc-bgm init` only ever touches the `hooks` key in
@@ -88,7 +91,7 @@ Add `-PurgeData` if you also want to delete `%LOCALAPPDATA%\cc-bgm\`.
 | `cc-bgm status [--json]` | Show enabled/volume/daemon/current mode |
 | `cc-bgm play <track>` | Manually play `village`, `quest`, `dungeon`, `credits` |
 | `cc-bgm stop` | Stop BGM |
-| `cc-bgm sfx <name>` | Fire `questclear`, `error`, `save`, `summon`, `fanfare_soft` |
+| `cc-bgm sfx <name>` | Fire `submit`, `progress`, `questclear`, `error`, `save`, `summon`, `fanfare_soft` |
 | `cc-bgm volume <0-100>` | Set master volume |
 | `cc-bgm off` / `cc-bgm on` | Silence / re-enable without uninstalling |
 | `cc-bgm config list` | Show all options and their values |
@@ -115,7 +118,8 @@ cc-bgm config reset                # back to defaults
 
 Changes are validated and applied to the running daemon immediately. Options:
 `volume`, `crossfade`, `duckLevel`, `battleIdleMs` (auto work→idle delay),
-`idleTimeoutMs` (daemon self-shutdown), `logLevel`, plus `enabled`/`mute`.
+`progressPulseMs` (interval of the retro work pulse), `idleTimeoutMs` (daemon
+self-shutdown), `logLevel`, plus `enabled`/`mute`.
 
 ### Getting real music
 
@@ -139,15 +143,15 @@ can layer it on top of `starter` if you want real music without changing SFX.
 | Claude Code event | BGM | SFX |
 | --- | --- | --- |
 | SessionStart | village | fanfare_soft |
-| UserPromptSubmit | quest | — |
-| PreToolUse (Bash/Edit/Write/mcp) | quest | — |
+| UserPromptSubmit | quest | submit + start progress pulse |
+| PreToolUse (Bash/Edit/Write/mcp) | quest | keep progress pulse running |
 | PreToolUse (Read) | — | — |
 | PostToolUse (Edit/Write) | — | save |
 | PostToolUseFailure | — | error |
 | Notification (permission) | — | summon |
-| Notification (idle) | village | — |
-| Stop | village | questclear |
-| SessionEnd | stop | — |
+| Notification (idle) | village | stop progress pulse |
+| Stop | village | stop progress pulse + questclear |
+| SessionEnd | stop | stop progress pulse |
 
 Edit `%LOCALAPPDATA%\cc-bgm\triggermap.json` to customize (created on `init`).
 Changes take effect on the next session — no need to re-run `init`.

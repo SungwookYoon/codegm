@@ -24,6 +24,16 @@ function loadTriggerMap() {
   return map;
 }
 
+function normalizeIntent(rule) {
+  if (!rule || typeof rule !== 'object') return {};
+  const intent = {};
+  if (rule.bgm) intent.bgm = rule.bgm;
+  if (rule.sfx) intent.sfx = rule.sfx;
+  if (rule.pulse) intent.pulse = rule.pulse;
+  if (rule.pulseMs != null) intent.pulseMs = rule.pulseMs;
+  return intent;
+}
+
 // hook = parsed stdin JSON. Returns an intent object (possibly empty).
 function resolveIntent(map, hook) {
   const event = hook && hook.hook_event_name;
@@ -33,21 +43,16 @@ function resolveIntent(map, hook) {
   // Tool-keyed events (PreToolUse / PostToolUse)
   if (rule._byTool) {
     const tool = hook.tool_name || '';
-    return rule._byTool[tool] || rule._byTool._default || {};
+    return normalizeIntent(rule._byTool[tool] || rule._byTool._default || {});
   }
 
   // Notification-type-keyed events
   if (rule._byType) {
     const type = hook.notification_type || (hook.notification && hook.notification.type) || '';
-    return rule._byType[type] || {};
+    return normalizeIntent(rule._byType[type] || {});
   }
 
-  // Flat rule
-  const { bgm, sfx } = rule;
-  const intent = {};
-  if (bgm) intent.bgm = bgm;
-  if (sfx) intent.sfx = sfx;
-  return intent;
+  return normalizeIntent(rule);
 }
 
 module.exports = { loadTriggerMap, resolveIntent };

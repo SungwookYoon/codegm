@@ -15,6 +15,7 @@ const DEFAULTS = Object.freeze({
   crossfade: 1500, // ms, BGM track transition
   idleTimeoutMs: 30 * 60 * 1000, // daemon self-shutdown when idle this long
   battleIdleMs: 45 * 1000, // auto-return battle->town if no battle ensure for this long
+  progressPulseMs: 900, // interval for retro "processing" SFX while Claude is working
   duckLevel: 0.3, // BGM volume multiplier while an SFX plays
   logLevel: 'info', // info | debug
 });

@@ -75,6 +75,7 @@ $script:Cfg = @{
   crossfade     = 1500
   idleTimeoutMs = 1800000   # 30 min
   battleIdleMs  = 45000     # auto battle->town
+  pulseMs       = 900       # retro "processing" SFX interval while working
   duckLevel     = 0.3
   duckMs        = 250       # duck ramp time
   master        = 0.70      # 0..1
@@ -87,6 +88,7 @@ try {
     if ($null -ne $u.crossfade)     { $script:Cfg.crossfade     = [int]$u.crossfade }
     if ($null -ne $u.idleTimeoutMs) { $script:Cfg.idleTimeoutMs = [int]$u.idleTimeoutMs }
     if ($null -ne $u.battleIdleMs)  { $script:Cfg.battleIdleMs  = [int]$u.battleIdleMs }
+    if ($null -ne $u.progressPulseMs) { $script:Cfg.pulseMs     = [int]$u.progressPulseMs }
     if ($null -ne $u.duckLevel)     { $script:Cfg.duckLevel     = [double]$u.duckLevel }
     if ($null -ne $u.volume)        { $script:Cfg.master        = [double]$u.volume / 100.0 }
     if ($null -ne $u.logLevel)      { $script:LogLevel          = [string]$u.logLevel }
@@ -203,6 +205,7 @@ Wire-Deck $script:DeckB
 # --------------------------------------------------------------------------
 $script:Fade = @{ Mode = 'idle'; StartUtc = $null; DurMs = 1500; Incoming = $null; Outgoing = $null }
 $script:Duck = @{ Mode = 'auto'; Target = 1.0; Current = 1.0; Until = $null }
+$script:Pulse = @{ Name = $null; IntervalMs = 900; NextUtc = 0 }
 
 function Get-ActiveDeck { if ($script:Active -eq 'A') { $script:DeckA } else { $script:DeckB } }
 function Get-IdleDeck   { if ($script:Active -eq 'A') { $script:DeckB } else { $script:DeckA } }
@@ -322,12 +325,35 @@ function Start-Crossfade([string]$name, [int]$durMs) {
 
 function Start-StopFade([int]$durMs) {
   $active = Get-ActiveDeck
+  Stop-Pulse
   if (-not $active.Player.Source) { $script:CurrentMode = $null; return }
   $script:Fade.Mode = 'stopfade'
   $script:Fade.DurMs = if ($durMs -gt 0) { $durMs } else { $script:Cfg.crossfade }
   $script:Fade.StartUtc = Now-Ms
   Ensure-FadeTimer
   Write-Log 'info' ("stopfade ({0}ms)" -f $script:Fade.DurMs)
+}
+
+function Start-Pulse([string]$name, [int]$intervalMs) {
+  if (-not $name) { return }
+  $asset = Resolve-Asset $name 'sfx'
+  if (-not $asset) { Write-Log 'warn' ("pulse: unknown '{0}'" -f $name); return }
+  $ms = if ($intervalMs -gt 0) { $intervalMs } else { $script:Cfg.pulseMs }
+  $same = ($script:Pulse.Name -eq $name -and $script:Pulse.IntervalMs -eq $ms)
+  $script:Pulse.Name = $name
+  $script:Pulse.IntervalMs = $ms
+  if (-not $same) {
+    $script:Pulse.NextUtc = (Now-Ms) + $ms
+    Write-Log 'debug' ("pulse start {0} ({1}ms)" -f $name, $ms)
+  }
+}
+
+function Stop-Pulse {
+  if ($script:Pulse.Name) {
+    Write-Log 'debug' ("pulse stop {0}" -f $script:Pulse.Name)
+  }
+  $script:Pulse.Name = $null
+  $script:Pulse.NextUtc = 0
 }
 
 function Play-Sfx([string]$name, [double]$gainDb) {
@@ -436,14 +462,29 @@ function Dispatch-Command([string]$line) {
           'crossfade' { $script:Cfg.crossfade = [int]$kv[$k] }
           'duckLevel' { $script:Cfg.duckLevel = [double]$kv[$k] }
           'battleIdle'{ $script:Cfg.battleIdleMs = [int]$kv[$k] }
+          'pulseMs'   {
+            $script:Cfg.pulseMs = [int]$kv[$k]
+            if ($script:Pulse.Name) {
+              $script:Pulse.IntervalMs = $script:Cfg.pulseMs
+              $script:Pulse.NextUtc = (Now-Ms) + $script:Cfg.pulseMs
+            }
+          }
           'logLevel'  { $script:LogLevel = [string]$kv[$k] }
         }
       }
       Write-Log 'info' 'config updated'; break
     }
+    'pulse' {
+      if ($pos.Count -lt 1) { Write-Log 'warn' 'pulse: no name'; break }
+      $interval = if ($kv.ContainsKey('interval')) { [int]$kv['interval'] } else { 0 }
+      Start-Pulse $pos[0] $interval
+      break
+    }
+    'pulse-stop' { Stop-Pulse; break }
     'ping' { Write-State; break }
     'quit' {
       Write-Log 'info' 'quit received'
+      Stop-Pulse
       Start-StopFade 300
       $script:QuitTimer = New-Object System.Windows.Threading.DispatcherTimer
       $script:QuitTimer.Interval = [TimeSpan]::FromMilliseconds(400)
@@ -497,8 +538,14 @@ $cmdTimer.add_Tick({
     if ($script:CurrentMode -in @('quest', 'dungeon', 'battle') -and $script:LastBattleUtc -gt 0 `
         -and ((Now-Ms) - $script:LastBattleUtc) -gt $script:Cfg.battleIdleMs) {
       Write-Log 'info' 'work idle -> village'
+      Stop-Pulse
       Start-Crossfade 'village' 0
       $script:LastBattleUtc = 0
+    }
+
+    if ($script:Pulse.Name -and $script:Pulse.IntervalMs -gt 0 -and (Now-Ms) -ge $script:Pulse.NextUtc) {
+      Play-Sfx $script:Pulse.Name 0.0
+      $script:Pulse.NextUtc = (Now-Ms) + $script:Pulse.IntervalMs
     }
 
     # idle self-shutdown

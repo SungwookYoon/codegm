@@ -7,6 +7,8 @@
     "credits": { "file": "bgm/credits.wav", "gain": 0, "loop": false }
   },
   "sfx": {
+    "submit":       { "file": "sfx/submit.wav",       "gain": -2 },
+    "progress":     { "file": "sfx/progress.wav",     "gain": -8 },
     "questclear":   { "file": "sfx/questclear.wav",   "gain": 0 },
     "error":        { "file": "sfx/error.wav",        "gain": -2 },
     "save":         { "file": "sfx/save.wav",         "gain": -6 },

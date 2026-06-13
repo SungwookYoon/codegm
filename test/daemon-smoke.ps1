@@ -10,7 +10,7 @@ $ps = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
 $DR = Join-Path $env:TEMP 'ccbgm_clean'
 if (Test-Path $DR) { Remove-Item -Recurse -Force $DR }
 New-Item -ItemType Directory -Force -Path (Join-Path $DR 'cmd') | Out-Null
-@{ volume = 70; crossfade = 600; idleTimeoutMs = 60000; battleIdleMs = 3000; logLevel = 'debug' } |
+@{ volume = 70; crossfade = 600; idleTimeoutMs = 60000; battleIdleMs = 3000; progressPulseMs = 500; logLevel = 'debug' } |
   ConvertTo-Json | Set-Content (Join-Path $DR 'config.json')
 
 $daemon = Join-Path $pkg 'daemon\cc-bgm-daemon.ps1'
@@ -26,9 +26,11 @@ function Drop($line) {
   Set-Content -LiteralPath (Join-Path $DR ('cmd\' + $name)) -Value $line
 }
 
-Drop 'ensure village'; Start-Sleep -Milliseconds 1200
-Drop 'ensure quest';   Start-Sleep -Milliseconds 800
-Drop 'ensure quest';   Drop 'sfx questclear'; Start-Sleep -Milliseconds 1000
+Drop 'ensure village';                Start-Sleep -Milliseconds 1200
+Drop 'sfx submit';                    Start-Sleep -Milliseconds 200
+Drop 'pulse progress interval=500';   Start-Sleep -Milliseconds 200
+Drop 'ensure quest';                  Start-Sleep -Milliseconds 800
+Drop 'ensure quest';                  Drop 'sfx questclear'; Drop 'pulse-stop'; Start-Sleep -Milliseconds 1000
 Write-Host ("state mid:        " + (Get-Content (Join-Path $DR 'state\daemon.json') -Raw).Trim())
 Start-Sleep -Seconds 4   # battleIdle=3000 -> daemon should auto-return to village
 Write-Host ("state after idle: " + (Get-Content (Join-Path $DR 'state\daemon.json') -Raw).Trim())

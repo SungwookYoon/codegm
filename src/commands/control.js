@@ -28,7 +28,7 @@ function stop() {
 function sfx(args) {
   const name = args[0];
   if (!name) {
-    console.error('usage: cc-bgm sfx <name>   (e.g. questclear, error, save)');
+    console.error('usage: cc-bgm sfx <name>   (e.g. submit, progress, questclear)');
     process.exitCode = 1;
     return;
   }

@@ -15,7 +15,7 @@ Setup
 Control
   play <track>               play a BGM track (village, quest, dungeon, credits)
   stop                       stop BGM
-  sfx <name>                 fire a sound effect (questclear, error, save, ...)
+  sfx <name>                 fire a sound effect (submit, progress, questclear, ...)
   volume <0-100>             set master volume
   on | off                   enable / silence without uninstalling
   status [--json]            show current state

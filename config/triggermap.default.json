@@ -1,16 +1,16 @@
 {
-  "_comment": "Fantasy-RPG concept. BGM is always 'ensure <mode>' (idempotent — daemon no-ops if already in that mode, so music switches only on idle<->work transitions, never restarts per tool call). SFX are RESTRAINED: only meaningful moments (quest clear, error, permission, save). Logical BGM modes: 'village' (idle/waiting) and 'quest' (Claude working). Override at %LOCALAPPDATA%/cc-bgm/triggermap.json.",
+  "_comment": "Retro-SFX-first default. BGM still swaps between 'village' (idle) and 'quest' (working), but work now gets a short 8-bit submit chirp plus a repeating processing pulse. Set pulse to '__stop' to halt the loop. Override at %LOCALAPPDATA%/cc-bgm/triggermap.json.",
 
   "SessionStart": { "bgm": "village", "sfx": "fanfare_soft" },
-  "UserPromptSubmit": { "bgm": "quest" },
+  "UserPromptSubmit": { "bgm": "quest", "sfx": "submit", "pulse": "progress" },
 
   "PreToolUse": {
     "_byTool": {
       "Read": {},
-      "Bash": { "bgm": "quest" },
-      "Edit": { "bgm": "quest" },
-      "Write": { "bgm": "quest" },
-      "_default": { "bgm": "quest" }
+      "Bash": { "bgm": "quest", "pulse": "progress" },
+      "Edit": { "bgm": "quest", "pulse": "progress" },
+      "Write": { "bgm": "quest", "pulse": "progress" },
+      "_default": { "bgm": "quest", "pulse": "progress" }
     }
   },
 
@@ -30,10 +30,10 @@
   "Notification": {
     "_byType": {
       "permission_prompt": { "sfx": "summon" },
-      "idle_prompt": { "bgm": "village" }
+      "idle_prompt": { "bgm": "village", "pulse": "__stop" }
     }
   },
 
-  "Stop": { "bgm": "village", "sfx": "questclear" },
-  "SessionEnd": { "bgm": "__stop" }
+  "Stop": { "bgm": "village", "pulse": "__stop", "sfx": "questclear" },
+  "SessionEnd": { "bgm": "__stop", "pulse": "__stop" }
 }

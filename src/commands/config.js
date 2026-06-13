@@ -16,6 +16,7 @@ const SCHEMA = {
   crossfade: { type: 'int', min: 0, max: 10000, desc: 'BGM transition ms', live: 'config:crossfade' },
   idleTimeoutMs: { type: 'int', min: 10000, max: 24 * 3600 * 1000, desc: 'daemon idle shutdown ms', live: 'config:idle' },
   battleIdleMs: { type: 'int', min: 5000, max: 3600 * 1000, desc: 'auto work→idle after ms of no work', live: 'config:battleIdle' },
+  progressPulseMs: { type: 'int', min: 200, max: 10000, desc: 'retro processing SFX interval ms', live: 'config:pulseMs' },
   duckLevel: { type: 'float', min: 0, max: 1, desc: 'BGM volume under SFX (0-1)', live: 'config:duckLevel' },
   logLevel: { type: 'enum', values: ['info', 'debug'], desc: 'daemon log verbosity', live: 'config:logLevel' },
 };

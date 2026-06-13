@@ -3,9 +3,13 @@
 // Unit-tests the trigger map -> intent resolution (pure, no I/O on the daemon).
 
 const assert = require('assert');
-const { loadTriggerMap, resolveIntent } = require('../src/core/triggermap');
+const fs = require('fs');
+const path = require('path');
+const { resolveIntent } = require('../src/core/triggermap');
 
-const map = loadTriggerMap();
+const map = JSON.parse(
+  fs.readFileSync(path.join(__dirname, '..', 'config', 'triggermap.default.json'), 'utf8')
+);
 let failures = 0;
 function ok(name, cond) {
   if (cond) console.log(`  ✓ ${name}`);
@@ -20,17 +24,20 @@ ok('SessionStart -> village + soft fanfare',
   JSON.stringify(intent({ hook_event_name: 'SessionStart', source: 'startup' })) ===
   JSON.stringify({ bgm: 'village', sfx: 'fanfare_soft' }));
 
-ok('UserPromptSubmit -> quest (enter battle)',
-  intent({ hook_event_name: 'UserPromptSubmit' }).bgm === 'quest');
+ok('UserPromptSubmit -> quest + submit + progress pulse',
+  JSON.stringify(intent({ hook_event_name: 'UserPromptSubmit' })) ===
+  JSON.stringify({ bgm: 'quest', sfx: 'submit', pulse: 'progress' }));
 
-ok('PreToolUse Bash -> quest',
-  intent({ hook_event_name: 'PreToolUse', tool_name: 'Bash' }).bgm === 'quest');
+ok('PreToolUse Bash -> quest + progress pulse',
+  JSON.stringify(intent({ hook_event_name: 'PreToolUse', tool_name: 'Bash' })) ===
+  JSON.stringify({ bgm: 'quest', pulse: 'progress' }));
 
 ok('PreToolUse Read -> no change (cheap reads)',
   Object.keys(intent({ hook_event_name: 'PreToolUse', tool_name: 'Read' })).length === 0);
 
-ok('PreToolUse mcp tool -> quest via _default',
-  intent({ hook_event_name: 'PreToolUse', tool_name: 'mcp__foo__bar' }).bgm === 'quest');
+ok('PreToolUse mcp tool -> quest + progress pulse via _default',
+  JSON.stringify(intent({ hook_event_name: 'PreToolUse', tool_name: 'mcp__foo__bar' })) ===
+  JSON.stringify({ bgm: 'quest', pulse: 'progress' }));
 
 ok('PostToolUse Write -> save sfx, no bgm',
   JSON.stringify(intent({ hook_event_name: 'PostToolUse', tool_name: 'Write' })) ===
@@ -45,15 +52,17 @@ ok('PostToolUseFailure -> error sfx',
 ok('Notification permission_prompt -> summon sfx',
   intent({ hook_event_name: 'Notification', notification_type: 'permission_prompt' }).sfx === 'summon');
 
-ok('Notification idle_prompt -> village',
-  intent({ hook_event_name: 'Notification', notification_type: 'idle_prompt' }).bgm === 'village');
+ok('Notification idle_prompt -> village + pulse stop',
+  JSON.stringify(intent({ hook_event_name: 'Notification', notification_type: 'idle_prompt' })) ===
+  JSON.stringify({ bgm: 'village', pulse: '__stop' }));
 
-ok('Stop -> village + questclear',
+ok('Stop -> village + pulse stop + questclear',
   JSON.stringify(intent({ hook_event_name: 'Stop' })) ===
-  JSON.stringify({ bgm: 'village', sfx: 'questclear' }));
+  JSON.stringify({ bgm: 'village', sfx: 'questclear', pulse: '__stop' }));
 
-ok('SessionEnd -> __stop',
-  intent({ hook_event_name: 'SessionEnd' }).bgm === '__stop');
+ok('SessionEnd -> __stop + pulse stop',
+  JSON.stringify(intent({ hook_event_name: 'SessionEnd' })) ===
+  JSON.stringify({ bgm: '__stop', pulse: '__stop' }));
 
 ok('unknown event -> empty',
   Object.keys(intent({ hook_event_name: 'Nonexistent' })).length === 0);

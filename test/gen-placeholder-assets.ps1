@@ -33,6 +33,8 @@ New-Tone (Join-Path $bgm 'village.wav') 196 2.0 6000
 New-Tone (Join-Path $bgm 'quest.wav')   294 2.0 7000
 New-Tone (Join-Path $bgm 'dungeon.wav') 147 2.0 7000
 New-Tone (Join-Path $bgm 'credits.wav') 262 2.0 5000
+New-Tone (Join-Path $sfx 'submit.wav')       659 0.12 8500
+New-Tone (Join-Path $sfx 'progress.wav')     988 0.08 6500
 New-Tone (Join-Path $sfx 'questclear.wav')   784 0.45 9000
 New-Tone (Join-Path $sfx 'error.wav')        131 0.40 9000
 New-Tone (Join-Path $sfx 'save.wav')         587 0.18 8000

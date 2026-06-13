@@ -56,7 +56,7 @@ async function run() {
 
   const map = loadTriggerMap();
   const intent = resolveIntent(map, hook);
-  if (!intent || (!intent.bgm && !intent.sfx)) return;
+  if (!intent || (!intent.bgm && !intent.sfx && !intent.pulse)) return;
 
   // Ensure the daemon is up before sending (lazy start).
   try {
@@ -70,6 +70,12 @@ async function run() {
       sendCommand('stop');
     } else if (intent.bgm) {
       sendCommand(`ensure ${intent.bgm}`);
+    }
+    if (intent.pulse === '__stop') {
+      sendCommand('pulse-stop');
+    } else if (intent.pulse) {
+      const pulseMs = intent.pulseMs != null ? ` interval=${intent.pulseMs}` : '';
+      sendCommand(`pulse ${intent.pulse}${pulseMs}`);
     }
     if (intent.sfx) {
       sendCommand(`sfx ${intent.sfx}`);
